@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import {
   Button,
   Pagination,
@@ -42,6 +42,7 @@ const CustomTable = (props: IProps) => {
     itemsPerPage = 10,
     onQueryChange,
   } = props;
+  const isFirstRender = useRef(true);
 
   const [rowsPerPage, setRowsPerPage] = useState(itemsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,11 +70,7 @@ const CustomTable = (props: IProps) => {
 
   const handleColumnFlag = (key: string) => {
     const data = headers.map((header) =>
-      header.key === key
-        ? header.show === false
-          ? { ...header, show: true }
-          : { ...header, show: false }
-        : header,
+      header.key === key ? { ...header, show: !header.show } : header,
     );
     setHeaders(data);
   };
@@ -121,17 +118,26 @@ const CustomTable = (props: IProps) => {
     setIsFilterOpen("");
   };
 
-  const paginatedList = [...listData]?.slice(
-    paginate ? rowsPerPage * (currentPage - 1) : 0,
-    paginate ? currentPage * rowsPerPage : listData.length,
-  );
+  const paginatedList = useMemo(() => {
+    if (!paginate) return listData;
+
+    const start = rowsPerPage * (currentPage - 1);
+    const end = currentPage * rowsPerPage;
+
+    return listData.slice(start, end);
+  }, [listData, paginate, rowsPerPage, currentPage]);
 
   useEffect(() => {
     if (currentPage > 1) setCurrentPage(1);
   }, [listData?.length]);
 
   useEffect(() => {
-    if (onQueryChange && paginate) {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (paginate && onQueryChange) {
       onQueryChange({
         page: currentPage,
         limit: rowsPerPage,
