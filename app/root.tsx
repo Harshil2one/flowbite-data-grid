@@ -1,3 +1,4 @@
+import React from "react";
 import { ThemeModeScript } from "flowbite-react";
 import {
   isRouteErrorResponse,
@@ -9,6 +10,7 @@ import {
 } from "react-router";
 import { ThemeInit } from "../.flowbite-react/init";
 import type { Route } from "./+types/root";
+import Header from "./components/layout/Header";
 
 import "./app.css";
 
@@ -37,6 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeInit />
+        <Header />
         {children}
         <ScrollRestoration />
         <Scripts />
