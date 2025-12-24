@@ -72,16 +72,18 @@ const headerList: IHeaderList[] = [
   },
 ];
 
+const ITEMS_PER_PAGE = 5;
+
 export default function Users() {
   const [users, setUsers] = useState<IUser[]>([]);
 
   const fetchUsers = async (query?: any) => {
     const response = await axios.get(
-      "https://jsonplaceholder.typicode.com/users",
+      "https://jsonplaceholder.typicode.com/users", // https://api.escuelajs.co/api/v1/products
       query
         ? {
             params: {
-              page: query.page,
+              offset: query.page - 1,
               limit: query.limit,
               sortKey: query.sort?.key,
               sortDir: query.sort?.direction,
@@ -89,7 +91,12 @@ export default function Users() {
               ...query.filters,
             },
           }
-        : {},
+        : {
+            params: {
+              offset: 0,
+              limit: ITEMS_PER_PAGE,
+            },
+          },
     );
     const users = await response.data;
     const result = users?.map((user: IUser) => {
@@ -114,8 +121,9 @@ export default function Users() {
         <CustomTable
           headerList={headerList}
           list={users}
+          totalItems={7}
           paginate
-          itemsPerPage={5}
+          itemsPerPage={ITEMS_PER_PAGE}
           onQueryChange={fetchUsers}
         />
       )}

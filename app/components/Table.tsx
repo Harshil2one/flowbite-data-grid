@@ -25,6 +25,7 @@ interface IProps {
   list: IListItem[];
   paginate?: boolean;
   itemsPerPage?: number;
+  totalItems?: number;
   onQueryChange?: (query: {
     page: number;
     limit: number;
@@ -40,6 +41,7 @@ const CustomTable = (props: IProps) => {
     list,
     paginate = false,
     itemsPerPage = 10,
+    totalItems,
     onQueryChange,
   } = props;
   const isFirstRender = useRef(true);
@@ -119,7 +121,7 @@ const CustomTable = (props: IProps) => {
   };
 
   const paginatedList = useMemo(() => {
-    if (!paginate) return listData;
+    if (!paginate || totalItems) return listData;
 
     const start = rowsPerPage * (currentPage - 1);
     const end = currentPage * rowsPerPage;
@@ -130,6 +132,10 @@ const CustomTable = (props: IProps) => {
   useEffect(() => {
     if (currentPage > 1) setCurrentPage(1);
   }, [listData?.length]);
+
+  useEffect(() => {
+    setListData(list);
+  }, [list]);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -298,7 +304,7 @@ const CustomTable = (props: IProps) => {
             className="flex flex-col items-center gap-1"
             showIcons
             currentPage={currentPage}
-            totalItems={listData.length}
+            totalItems={totalItems || listData.length}
             itemsPerPage={rowsPerPage}
             onPageChange={onPageChange}
           />
